@@ -50,29 +50,32 @@ export function Files({ width, height, focused, onSelectedFile }: Props) {
         </Text>
       </Text>
       <Box height={1} />
-      {files.length === 0 && <Text color="gray">no changes</Text>}
-      <ScrollList height="100%" selectedIndex={selectedIndex}>
-        {files.map((file, i) => {
-          const parts = file.path.split("/");
-          const name = parts.at(-1) ?? file.path;
-          const dir = parts.slice(0, -1).join("/");
+      {files.length === 0 ? (
+        <Text color="gray">no changes</Text>
+      ) : (
+        <ScrollList height="100%" selectedIndex={selectedIndex}>
+          {files.map((file, i) => {
+            const parts = file.path.split("/");
+            const name = parts.at(-1) ?? file.path;
+            const dir = parts.slice(0, -1).join("/");
 
-          return (
-            <Box
-              key={file.path}
-              width={width}
-              backgroundColor={i === selectedIndex ? "#222" : undefined}
-            >
-              <Text color={file.staged ? "green" : "gray"}>{file.staged ? "●" : "○"} </Text>
-              <Text color="gray">{file.status[0]?.toLowerCase()} </Text>
-              <Box flexGrow={1} overflow="hidden">
-                <Text>{name}</Text>
-                {dir ? <Text color="gray"> {dir}</Text> : null}
+            return (
+              <Box
+                key={file.path}
+                width={width}
+                backgroundColor={i === selectedIndex ? "#222" : undefined}
+              >
+                <Text color={file.staged ? "green" : "gray"}>{file.staged ? "●" : "○"} </Text>
+                <Text color="gray">{file.status[0]?.toLowerCase()} </Text>
+                <Box flexGrow={1} overflow="hidden">
+                  <Text>{name}</Text>
+                  {dir ? <Text color="gray"> {dir}</Text> : null}
+                </Box>
               </Box>
-            </Box>
-          );
-        })}
-      </ScrollList>
+            );
+          })}
+        </ScrollList>
+      )}
     </Box>
   );
 }
