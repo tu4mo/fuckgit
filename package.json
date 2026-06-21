@@ -1,17 +1,29 @@
 {
   "name": "fuckgit",
   "version": "1.0.0",
-  "description": "",
-  "keywords": [],
+  "description": "A fullscreen TUI Git client",
+  "keywords": [
+    "git",
+    "tui",
+    "cli",
+    "terminal"
+  ],
   "license": "ISC",
-  "author": "",
+  "author": "tu4mo",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/app.js",
+  "bin": {
+    "fuckgit": "dist/app.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && rolldown --config rolldown.config.js",
     "dev": "tsx --watch src/app.tsx",
     "format": "oxfmt",
     "lint": "oxlint",
+    "prepublishOnly": "npm run build",
     "start": "node dist/app.js",
     "type-check": "tsc --noEmit"
   },
@@ -26,6 +38,7 @@
     "@types/react": "19.2.17",
     "oxfmt": "0.55.0",
     "oxlint": "1.70.0",
+    "rolldown": "1.1.1",
     "tsx": "4.22.4",
     "typescript": "6.0.3"
   }
