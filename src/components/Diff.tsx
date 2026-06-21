@@ -1,6 +1,7 @@
 import { Box, Text, useInput } from "ink";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+import { type DiffLine, parseDiff } from "../lib/diff.js";
 import { type ChangedFile, getDiff } from "../lib/git/index.js";
 
 type Props = {
@@ -10,20 +11,14 @@ type Props = {
   width: number;
 };
 
-function parseDiff(diff: string): string[] {
-  const raw = diff ? diff.split("\n") : ["(no diff)"];
-  const hunkStart = raw.findIndex((l) => l.startsWith("@@"));
-  return (hunkStart === -1 ? raw : raw.slice(hunkStart)).filter((l) => !l.startsWith("@@"));
-}
-
-function lineBg(line: string): string | undefined {
-  if (line.startsWith("+") && !line.startsWith("+++")) return "#0d2a0d";
-  if (line.startsWith("-") && !line.startsWith("---")) return "#2a0d0d";
+function lineBg(line: DiffLine): string | undefined {
+  if (line.kind === "add") return "#0d2a0d";
+  if (line.kind === "remove") return "#2a0d0d";
   return undefined;
 }
 
 export function Diff({ file, focused, height, width }: Props) {
-  const [lines, setLines] = useState<string[]>([]);
+  const [lines, setLines] = useState<DiffLine[]>([]);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [horizontalOffset, setHorizontalOffset] = useState(0);
   const prevFileRef = useRef<string | undefined>(undefined);
@@ -44,30 +39,35 @@ export function Diff({ file, focused, height, width }: Props) {
     prevFileRef.current = file.path;
   }, [file]);
 
-  useInput((_, key) => {
-    const visibleCount = height - 2;
-    const maxScroll = Math.max(0, lines.length - visibleCount);
-    const maxLineLength = Math.max(0, ...lines.map((l) => l.length));
-    const maxHorizontal = Math.max(0, maxLineLength - width);
-    if (key.upArrow) setScrollOffset((s) => Math.max(0, s - 1));
-    if (key.downArrow) setScrollOffset((s) => Math.min(maxScroll, s + 1));
-    if (key.leftArrow) setHorizontalOffset((s) => Math.max(0, s - 1));
-    if (key.rightArrow) setHorizontalOffset((s) => Math.min(maxHorizontal, s + 1));
-  }, { isActive: focused });
+  const maxLineLength = useMemo(() => Math.max(0, ...lines.map((l) => l.text.length)), [lines]);
+
+  useInput(
+    (_, key) => {
+      const visibleCount = height - 2;
+      const maxScroll = Math.max(0, lines.length - visibleCount);
+      const maxHorizontal = Math.max(0, maxLineLength - width);
+      if (key.upArrow) setScrollOffset((s) => Math.max(0, s - 1));
+      if (key.downArrow) setScrollOffset((s) => Math.min(maxScroll, s + 1));
+      if (key.leftArrow) setHorizontalOffset((s) => Math.max(0, s - 1));
+      if (key.rightArrow) setHorizontalOffset((s) => Math.min(maxHorizontal, s + 1));
+    },
+    { isActive: focused },
+  );
 
   const visibleCount = height - 2;
   const visible = lines.slice(scrollOffset, scrollOffset + visibleCount);
 
   return (
     <Box flexDirection="column" width={width} height={height} overflow="hidden">
-      <Text bold color={focused ? "whiteBright" : "gray"}>diff</Text>
+      <Text bold color={focused ? "whiteBright" : "gray"}>
+        diff
+      </Text>
       <Box height={1} />
       {visible.map((line, i) => {
-        const content = line.slice(horizontalOffset, horizontalOffset + width) || " ";
-        const displayLine = line.startsWith("+") || line.startsWith("-") ? content.slice(1) || " " : content;
+        const content = line.text.slice(horizontalOffset, horizontalOffset + width) || " ";
         return (
           <Box key={i} width="100%" backgroundColor={lineBg(line)}>
-            <Text color="white">{displayLine}</Text>
+            <Text color={line.kind === "hunk" ? "cyan" : "white"}>{content}</Text>
           </Box>
         );
       })}
