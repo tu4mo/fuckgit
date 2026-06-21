@@ -3,7 +3,7 @@ import { ScrollList } from "ink-scroll-list";
 import { useEffect, useMemo, useState } from "react";
 
 import { useRepository } from "../hooks/useRepository.js";
-import { type ChangedFile, getBranch } from "../lib/git/index.js";
+import { type ChangedFile } from "../lib/git/index.js";
 
 type Props = {
   width: number;
@@ -13,9 +13,8 @@ type Props = {
 };
 
 export function Files({ width, height, focused, onSelectedFile }: Props) {
-  const { files, stage, unstage } = useRepository();
+  const { files, branch, stage, unstage } = useRepository();
   const folder = useMemo(() => process.cwd().split("/").pop(), []);
-  const branch = useMemo(() => getBranch(), []);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   useEffect(() => {

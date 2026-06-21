@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { type ChangedFile, getStatus, stageFile, unstageFile } from "../lib/git/index.js";
+import { getBranch } from "../lib/git/branch.js";
 
 function sortFiles(files: ChangedFile[]): ChangedFile[] {
   return files.slice().sort((a, b) => {
@@ -13,9 +14,11 @@ function sortFiles(files: ChangedFile[]): ChangedFile[] {
 
 export function useRepository() {
   const [files, setFiles] = useState(() => sortFiles(getStatus()));
+  const [branch, setBranch] = useState(() => getBranch());
 
   function refresh() {
     setFiles(sortFiles(getStatus()));
+    setBranch(getBranch());
   }
 
   useEffect(() => {
@@ -33,5 +36,5 @@ export function useRepository() {
     refresh();
   }
 
-  return { files, stage, unstage };
+  return { files, branch, stage, unstage };
 }
