@@ -41,9 +41,13 @@ export function Files({ width, height, focused, onSelectedFile }: Props) {
   return (
     <Box flexDirection="column" width={width} height={height}>
       <Text>
-        <Text bold color={focused ? "whiteBright" : "gray"}>/{folder}</Text>
+        <Text bold color={focused ? "whiteBright" : "gray"}>
+          {folder}
+        </Text>
         <Text color="gray">{" → "}</Text>
-        <Text bold color={focused ? "whiteBright" : "gray"}>{branch}</Text>
+        <Text bold color={focused ? "whiteBright" : "gray"}>
+          {branch}
+        </Text>
       </Text>
       <Box height={1} />
       <ScrollList height={height - 2} selectedIndex={selectedIndex} scrollAlignment="center">
