@@ -1,5 +1,5 @@
 {
-  "name": "fuckgit",
+  "name": "fckgit",
   "version": "1.0.0",
   "description": "A fullscreen TUI Git client",
   "keywords": [
@@ -13,7 +13,7 @@
   "type": "module",
   "main": "dist/app.js",
   "bin": {
-    "fuckgit": "dist/app.js"
+    "fg": "dist/app.js"
   },
   "files": [
     "dist"
