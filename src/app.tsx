@@ -1,8 +1,8 @@
 import { render, Box, useApp, useInput, useStdout } from "ink";
 import { useState } from "react";
 
-import { Files } from "./components/Files.js";
 import { Diff } from "./components/Diff.js";
+import { Files } from "./components/Files.js";
 import { Header } from "./components/Header.js";
 import { type ChangedFile } from "./lib/git/index.js";
 import { ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, HIDE_CURSOR, SHOW_CURSOR } from "./lib/terminal.js";

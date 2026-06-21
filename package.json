@@ -3,10 +3,10 @@
   "version": "1.0.3",
   "description": "A fullscreen TUI Git client",
   "keywords": [
-    "git",
-    "tui",
     "cli",
-    "terminal"
+    "git",
+    "terminal",
+    "tui"
   ],
   "license": "ISC",
   "author": "tu4mo",
@@ -14,14 +14,14 @@
     "type": "git",
     "url": "https://github.com/tu4mo/fckgit.git"
   },
-  "type": "module",
-  "main": "dist/app.js",
   "bin": {
     "fckgit": "dist/app.js"
   },
   "files": [
     "dist"
   ],
+  "type": "module",
+  "main": "dist/app.js",
   "scripts": {
     "build": "rm -rf dist && rolldown --config rolldown.config.js",
     "dev": "tsx --watch src/app.tsx",
