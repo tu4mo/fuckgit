@@ -13,7 +13,7 @@
   "type": "module",
   "main": "dist/app.js",
   "bin": {
-    "fg": "dist/app.js"
+    "fckgit": "dist/app.js"
   },
   "files": [
     "dist"
