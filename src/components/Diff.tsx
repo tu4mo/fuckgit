@@ -1,6 +1,6 @@
-import { Box, Text, useInput } from "ink";
+import { Box, Text, useBoxMetrics, useInput } from "ink";
 import { ScrollView, type ScrollViewRef } from "ink-scroll-view";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
 
 import { type DiffLine, parseDiff } from "../lib/diff.js";
 import { type ChangedFile, getDiff } from "../lib/git/index.js";
@@ -8,8 +8,7 @@ import { type ChangedFile, getDiff } from "../lib/git/index.js";
 type Props = {
   file: ChangedFile | undefined;
   focused: boolean;
-  height: number;
-  width: number;
+  width: ComponentProps<typeof Box>["width"];
 };
 
 function lineBg(line: DiffLine): string | undefined {
@@ -18,11 +17,13 @@ function lineBg(line: DiffLine): string | undefined {
   return undefined;
 }
 
-export function Diff({ file, focused, height, width }: Props) {
+export function Diff({ file, focused, width }: Props) {
   const [lines, setLines] = useState<DiffLine[]>([]);
   const [horizontalOffset, setHorizontalOffset] = useState(0);
   const scrollRef = useRef<ScrollViewRef>(null);
   const prevFileRef = useRef<string | undefined>(undefined);
+  const ref = useRef(null);
+  const { width: measuredWidth, height: measuredHeight } = useBoxMetrics(ref);
 
   useEffect(() => {
     if (!file) {
@@ -44,7 +45,7 @@ export function Diff({ file, focused, height, width }: Props) {
 
   useInput(
     (_, key) => {
-      const maxHorizontal = Math.max(0, maxLineLength - width);
+      const maxHorizontal = Math.max(0, maxLineLength - measuredWidth);
       if (key.upArrow) scrollRef.current?.scrollBy(-1);
       if (key.downArrow) scrollRef.current?.scrollBy(1);
       if (key.leftArrow) setHorizontalOffset((s) => Math.max(0, s - 1));
@@ -54,17 +55,28 @@ export function Diff({ file, focused, height, width }: Props) {
   );
 
   return (
-    <Box flexDirection="column" width={width} height={height} overflow="hidden">
-      <Text bold color={focused ? "whiteBright" : "gray"}>
-        {file && file.path}
-      </Text>
-      <Box height={1} />
-      <ScrollView ref={scrollRef} height="100%">
+    <Box flexDirection="column" width={width}>
+      <Box ref={ref}>
+        <Text bold color="whiteBright">
+          {" "}
+          {file && file.path}
+        </Text>
+      </Box>
+      <ScrollView
+        borderColor={focused ? "white" : "gray"}
+        borderStyle="round"
+        flexGrow={1}
+        height={measuredHeight}
+        ref={scrollRef}
+      >
         {lines.map((line, i) => {
-          const content = line.text.slice(horizontalOffset, horizontalOffset + width) || " ";
+          const content =
+            line.text.slice(horizontalOffset, horizontalOffset + measuredWidth - 2) || " ";
           return (
             <Box key={i} width="100%" backgroundColor={lineBg(line)}>
-              <Text color={line.kind === "hunk" ? "cyan" : "white"}>{content}</Text>
+              <Text wrap="hard" color={line.kind === "hunk" ? "cyan" : "white"}>
+                {content}
+              </Text>
             </Box>
           );
         })}

@@ -1,10 +1,11 @@
-import { Text } from "ink";
-import Gradient from "ink-gradient";
+import { Box, Text } from "ink";
 
 export function Header() {
   return (
-    <Text bold>
-      <Gradient name="atlas">f*ckgit</Gradient>
-    </Text>
+    <Box backgroundColor="green" paddingX={1} marginBottom={1}>
+      <Text bold color="black">
+        f*ckgit
+      </Text>
+    </Box>
   );
 }

@@ -20,28 +20,12 @@ function App() {
     if (key.tab) setFocusedPane((p) => (p === "files" ? "diff" : "files"));
   });
 
-  const filesWidth = Math.floor(stdout.columns * 0.3);
-  const diffWidth = stdout.columns - filesWidth - 2;
-  const paneHeight = stdout.rows - 2;
-
   return (
     <Box flexDirection="column" width={stdout.columns} height={stdout.rows} padding={0}>
       <Header />
-      <Box height={1} />
-      <Box flexDirection="row">
-        <Files
-          width={filesWidth}
-          height={paneHeight}
-          focused={focusedPane === "files"}
-          onSelectedFile={setSelectedFile}
-        />
-        <Box width={1} />
-        <Diff
-          file={selectedFile}
-          focused={focusedPane === "diff"}
-          height={paneHeight}
-          width={diffWidth}
-        />
+      <Box flexDirection="row" flexGrow={1}>
+        <Files width="30%" focused={focusedPane === "files"} onSelectedFile={setSelectedFile} />
+        <Diff file={selectedFile} focused={focusedPane === "diff"} width="70%" />
       </Box>
     </Box>
   );

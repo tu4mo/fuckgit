@@ -1,18 +1,26 @@
 import { Box, Text, useInput } from "ink";
 import { ScrollList } from "ink-scroll-list";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ComponentProps } from "react";
 
 import { useRepository } from "../hooks/useRepository.js";
-import { type ChangedFile } from "../lib/git/index.js";
+import { type ChangedFile, type GitFileStatus } from "../lib/git/index.js";
 
 type Props = {
-  width: number;
-  height: number;
   focused: boolean;
   onSelectedFile: (file: ChangedFile | undefined) => void;
+  width: ComponentProps<typeof Box>["width"];
 };
 
-export function Files({ width, height, focused, onSelectedFile }: Props) {
+const STATUS_SYMBOLS: Record<GitFileStatus, string> = {
+  "MODIFIED": "ᵐ",
+  "ADDED": "ᵃ",
+  "DELETED": "ᵈ",
+  "RENAMED": "ʳ",
+  "UNTRACKED": "ᵘ",
+  "-": "⁻",
+};
+
+export function Files({ width, focused, onSelectedFile }: Props) {
   const { files, branch, stage, unstage } = useRepository();
   const folder = useMemo(() => process.cwd().split("/").pop(), []);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -39,43 +47,48 @@ export function Files({ width, height, focused, onSelectedFile }: Props) {
   );
 
   return (
-    <Box flexDirection="column" width={width} height={height}>
-      <Text>
-        <Text bold color={focused ? "whiteBright" : "gray"}>
-          {folder}
+    <Box flexDirection="column" width={width}>
+      <Box>
+        <Text>
+          <Text bold color={"whiteBright"}>
+            {" "}
+            {folder}
+          </Text>
+          <Text color="gray">{" → "}</Text>
+          <Text bold color={"whiteBright"}>
+            {branch}
+          </Text>
         </Text>
-        <Text color="gray">{" → "}</Text>
-        <Text bold color={focused ? "whiteBright" : "gray"}>
-          {branch}
-        </Text>
-      </Text>
-      <Box height={1} />
-      {files.length === 0 ? (
-        <Text color="gray">no changes</Text>
-      ) : (
-        <ScrollList height="100%" selectedIndex={selectedIndex}>
-          {files.map((file, i) => {
-            const parts = file.path.split("/");
-            const name = parts.at(-1) ?? file.path;
-            const dir = parts.slice(0, -1).join("/");
+      </Box>
+      <Box borderColor={focused ? "white" : "gray"} borderStyle="round" flexGrow={1}>
+        {files.length === 0 ? (
+          <Text color="gray">no changes</Text>
+        ) : (
+          <ScrollList height="100%" selectedIndex={selectedIndex} width="100%">
+            {files.map((file, i) => {
+              const parts = file.path.split("/");
+              const name = parts.at(-1) ?? file.path;
+              const dir = parts.slice(0, -1).join("/");
 
-            return (
-              <Box
-                key={file.path}
-                width={width}
-                backgroundColor={i === selectedIndex ? "#222" : undefined}
-              >
-                <Text color={file.staged ? "green" : "gray"}>{file.staged ? "●" : "○"} </Text>
-                <Text color="gray">{file.status[0]?.toLowerCase()} </Text>
-                <Box flexGrow={1} overflow="hidden">
-                  <Text>{name}</Text>
-                  {dir ? <Text color="gray"> {dir}</Text> : null}
+              return (
+                <Box
+                  key={file.path}
+                  backgroundColor={i === selectedIndex ? "#222" : undefined}
+                  paddingX={1}
+                  height={1}
+                >
+                  <Text color={file.staged ? "green" : "gray"}>{file.staged ? "●" : "○"} </Text>
+                  <Box flexGrow={1} overflow="hidden">
+                    <Text>{name}</Text>
+                    {dir ? <Text color="gray"> {dir}</Text> : null}
+                  </Box>
+                  <Text color="gray"> {STATUS_SYMBOLS[file.status]}</Text>
                 </Box>
-              </Box>
-            );
-          })}
-        </ScrollList>
-      )}
+              );
+            })}
+          </ScrollList>
+        )}
+      </Box>
     </Box>
   );
 }
