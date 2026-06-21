@@ -1,9 +1,10 @@
 import { Text } from "ink";
+import Gradient from "ink-gradient";
 
 export function Header() {
   return (
-    <Text bold color="greenBright">
-      f*ckgit
+    <Text bold>
+      <Gradient name="atlas">f*ckgit</Gradient>
     </Text>
   );
 }

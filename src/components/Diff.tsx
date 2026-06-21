@@ -59,7 +59,7 @@ export function Diff({ file, focused, height, width }: Props) {
         {file && file.path}
       </Text>
       <Box height={1} />
-      <ScrollView ref={scrollRef} height={height - 2} width={width}>
+      <ScrollView ref={scrollRef} height="100%">
         {lines.map((line, i) => {
           const content = line.text.slice(horizontalOffset, horizontalOffset + width) || " ";
           return (
