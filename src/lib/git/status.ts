@@ -1,9 +1,12 @@
-import { git } from "./git.js";
+import path from "path";
+
+import { git, repoRoot } from "./git.js";
 
 export type GitFileStatus = "MODIFIED" | "ADDED" | "DELETED" | "RENAMED" | "UNTRACKED" | "-";
 
 export type ChangedFile = {
   path: string;
+  displayPath: string;
   status: GitFileStatus;
   staged: boolean;
 };
@@ -27,8 +30,10 @@ export function getStatus(): ChangedFile[] {
       const wtChar = line[1];
       const staged = indexChar !== " " && indexChar !== "?";
       const code = wtChar === "?" ? "?" : staged ? indexChar : wtChar;
+      const filePath = line.slice(3);
       return {
-        path: line.slice(3),
+        path: filePath,
+        displayPath: path.relative(process.cwd(), path.join(repoRoot, filePath)),
         status: STATUS_MAP[code ?? ""] ?? "-",
         staged,
       };

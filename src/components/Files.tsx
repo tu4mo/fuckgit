@@ -55,8 +55,8 @@ export function Files({ width, focused, onSelectedFile }: Props) {
       <Box borderColor={focused ? "white" : "gray"} borderStyle="round" flexGrow={1}>
         <ScrollList height="100%" selectedIndex={selectedIndex} width="100%">
           {files.map((file, i) => {
-            const parts = file.path.split("/");
-            const name = parts.at(-1) ?? file.path;
+            const parts = file.displayPath.split("/");
+            const name = parts.at(-1) ?? file.displayPath;
             const dir = parts.slice(0, -1).join("/");
 
             return (

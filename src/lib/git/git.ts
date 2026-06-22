@@ -1,6 +1,6 @@
 import { execFileSync, spawnSync } from "child_process";
 
-const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
+export const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   encoding: "utf8",
   stdio: "pipe",
 }).trimEnd();
