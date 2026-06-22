@@ -1,4 +1,4 @@
-import { execFileSync, spawnSync } from "child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 
 export const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   encoding: "utf8",

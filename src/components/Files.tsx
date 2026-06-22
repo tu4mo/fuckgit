@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import { Box, Text, useInput } from "ink";
 import { ScrollList } from "ink-scroll-list";
 import { useEffect, useState, type ComponentProps } from "react";
@@ -61,9 +63,8 @@ export function Files({ width, focused, onSelectedFile }: Props) {
       <Box borderColor={focused ? "white" : "gray"} borderStyle="round" flexGrow={1}>
         <ScrollList height="100%" selectedIndex={selectedIndex} width="100%">
           {files.map((file, i) => {
-            const parts = file.displayPath.split("/");
-            const name = parts.at(-1) ?? file.displayPath;
-            const dir = parts.slice(0, -1).join("/");
+            const name = path.basename(file.displayPath);
+            const dir = path.dirname(file.displayPath) === "." ? "" : path.dirname(file.displayPath);
 
             return (
               <Box
