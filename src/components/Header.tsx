@@ -5,7 +5,7 @@ export function Header() {
   const folder = useMemo(() => process.cwd().split("/").pop(), []);
 
   return (
-    <Box backgroundColor="green" paddingX={1} marginBottom={1} justifyContent="space-between">
+    <Box backgroundColor="green" paddingX={1} justifyContent="space-between">
       <Text bold color="black">
         f*ckgit
       </Text>
