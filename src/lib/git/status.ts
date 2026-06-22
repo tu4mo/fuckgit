@@ -28,21 +28,30 @@ export function getStatus(): ChangedFile[] {
     if (!output) return [];
 
     return output.split("\n").map((line) => {
-      const [indexChar, wtChar] = line;
-      const isIndexChanged = indexChar !== " " && indexChar !== "?";
-      const isWtChanged = wtChar !== " " && wtChar !== "?";
+      const [indexStatusChar, workingTreeStatusChar] = line;
+
+      const isIndexChanged = indexStatusChar !== " " && indexStatusChar !== "?";
+      const isWorkingTreeChanged = workingTreeStatusChar !== " " && workingTreeStatusChar !== "?";
+
       const stagedStatus: StagedStatus = !isIndexChanged
         ? "NONE"
-        : isWtChanged
+        : isWorkingTreeChanged
           ? "PARTIAL"
           : "FULL";
-      const code = wtChar === "?" ? "?" : isIndexChanged ? indexChar : wtChar;
+
+      const statusCode =
+        workingTreeStatusChar === "?"
+          ? "?"
+          : isIndexChanged
+            ? indexStatusChar
+            : workingTreeStatusChar;
+
       const filePath = line.slice(3);
 
       return {
         path: filePath,
         displayPath: path.relative(process.cwd(), path.join(repoRoot, filePath)),
-        status: STATUS_MAP[code ?? ""] ?? "-",
+        status: STATUS_MAP[statusCode ?? ""] ?? "-",
         stagedStatus,
       };
     });
