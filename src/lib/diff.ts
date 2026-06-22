@@ -1,9 +1,12 @@
+import { getDiff, type ChangedFile } from "./git/index.js";
+
 export type DiffLine = {
   kind: "add" | "remove" | "context" | "separator";
   text: string;
+  staged: boolean;
 };
 
-export function parseDiff(raw: string): DiffLine[] {
+export function parseDiff({ raw, staged }: { raw: string; staged: boolean }): DiffLine[] {
   if (!raw) return [];
 
   const lines = raw.split("\n");
@@ -13,11 +16,38 @@ export function parseDiff(raw: string): DiffLine[] {
   let firstHunk = true;
   return lines.slice(hunkStart).flatMap((line): DiffLine[] => {
     if (line.startsWith("@@")) {
-      if (firstHunk) { firstHunk = false; return []; }
-      return [{ kind: "separator", text: "" }];
+      if (firstHunk) {
+        firstHunk = false;
+        return [];
+      }
+      return [{ kind: "separator", text: "···", staged }];
     }
-    if (line.startsWith("+")) return [{ kind: "add", text: line.slice(1) }];
-    if (line.startsWith("-")) return [{ kind: "remove", text: line.slice(1) }];
-    return [{ kind: "context", text: line.slice(1) }];
+
+    if (line.startsWith("+")) {
+      return [{ kind: "add", text: line.slice(1), staged }];
+    }
+
+    if (line.startsWith("-")) {
+      return [{ kind: "remove", text: line.slice(1), staged }];
+    }
+
+    return [{ kind: "context", text: line.slice(1), staged }];
   });
+}
+
+export function getFileDiffLines(file: ChangedFile): DiffLine[] {
+  if (file.stagedStatus === "PARTIAL") {
+    const parse = (staged: boolean) =>
+      parseDiff({ raw: getDiff({ path: file.path, staged, untracked: false }), staged });
+    const stagedLines = parse(true);
+    const unstagedLines = parse(false);
+    const divider: DiffLine = { kind: "separator", text: "unstaged", staged: false };
+    return [
+      ...stagedLines,
+      ...(stagedLines.length && unstagedLines.length ? [divider] : []),
+      ...unstagedLines,
+    ];
+  }
+  const staged = file.stagedStatus !== "NONE";
+  return parseDiff({ raw: getDiff({ path: file.path, staged, untracked: file.status === "UNTRACKED" }), staged });
 }

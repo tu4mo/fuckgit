@@ -2,8 +2,8 @@ import { Box, Text, useBoxMetrics, useInput } from "ink";
 import { ScrollView, type ScrollViewRef } from "ink-scroll-view";
 import { useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
 
-import { type DiffLine, parseDiff } from "../lib/diff.js";
-import { type ChangedFile, getDiff } from "../lib/git/index.js";
+import { type DiffLine, getFileDiffLines } from "../lib/diff.js";
+import { type ChangedFile } from "../lib/git/index.js";
 
 type Props = {
   file: ChangedFile | undefined;
@@ -12,8 +12,8 @@ type Props = {
 };
 
 function lineBg(line: DiffLine): string | undefined {
-  if (line.kind === "add") return "#0d2a0d";
-  if (line.kind === "remove") return "#2a0d0d";
+  if (line.kind === "add") return "#052e16";
+  if (line.kind === "remove") return "#450a0a";
   return undefined;
 }
 
@@ -31,13 +31,14 @@ export function Diff({ file, focused, width }: Props) {
       scrollRef.current?.scrollToTop();
       return;
     }
-    const diff = getDiff(file.path, file.stagedStatus !== "NONE", file.status === "UNTRACKED");
-    const parsed = parseDiff(diff);
-    setLines(parsed);
+
+    setLines(getFileDiffLines(file));
+
     if (prevFileRef.current !== file.path) {
       scrollRef.current?.scrollToTop();
       setHorizontalOffset(0);
     }
+
     prevFileRef.current = file.path;
   }, [file]);
 
@@ -72,7 +73,7 @@ export function Diff({ file, focused, width }: Props) {
           if (line.kind === "separator") {
             return (
               <Box key={i} width="100%" backgroundColor="#222" justifyContent="center">
-                <Text color="#555">⌃⌄</Text>
+                <Text color="#555">{line.text}</Text>
               </Box>
             );
           }
