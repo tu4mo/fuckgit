@@ -69,11 +69,20 @@ export function Diff({ file, focused, width }: Props) {
         ref={scrollRef}
       >
         {lines.map((line, i) => {
+          if (line.kind === "separator") {
+            return (
+              <Box key={i} width="100%" backgroundColor="#222" justifyContent="center">
+                <Text color="#555">⌃⌄</Text>
+              </Box>
+            );
+          }
+
           const content =
             line.text.slice(horizontalOffset, horizontalOffset + measuredWidth - 2) || " ";
+
           return (
             <Box key={i} width="100%" backgroundColor={lineBg(line)}>
-              <Text wrap="hard" color={line.kind === "hunk" ? "cyan" : "white"}>
+              <Text wrap="hard" color="white">
                 {content}
               </Text>
             </Box>
