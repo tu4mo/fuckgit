@@ -30,4 +30,4 @@ function App() {
   );
 }
 
-render(<App />, { exitOnCtrlC: true, alternateScreen: true });
+render(<App />, { alternateScreen: true });
