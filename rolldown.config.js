@@ -12,6 +12,12 @@ export default defineConfig({
   },
   plugins: [
     {
+      name: "replace-node-env",
+      transform(code) {
+        return { code: code.replaceAll("process.env.NODE_ENV", JSON.stringify(process.env.NODE_ENV)) };
+      },
+    },
+    {
       name: "stub-react-devtools-core",
       resolveId(id) {
         if (id === "react-devtools-core") {
