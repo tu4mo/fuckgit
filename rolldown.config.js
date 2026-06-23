@@ -14,7 +14,7 @@ export default defineConfig({
     {
       name: "replace-node-env",
       transform(code) {
-        return { code: code.replaceAll("process.env.NODE_ENV", JSON.stringify(process.env.NODE_ENV)) };
+        return { code: code.replaceAll("process.env.NODE_ENV", JSON.stringify("production")) };
       },
     },
     {
