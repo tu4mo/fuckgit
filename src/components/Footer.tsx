@@ -1,0 +1,43 @@
+import { Box, Text } from "ink";
+
+import { type Pane } from "../types.js";
+
+type Command = {
+  key: string;
+  label: string;
+};
+
+const COMMANDS: Record<Pane, Command[]> = {
+  files: [
+    { key: "↑↓", label: "navigate" },
+    { key: "space", label: "stage/unstage" },
+    { key: "tab", label: "switch pane" },
+    { key: "q", label: "quit" },
+  ],
+  diff: [
+    { key: "↑↓", label: "scroll" },
+    { key: "←→", label: "pan" },
+    { key: "+/-", label: "context" },
+    { key: "tab", label: "switch pane" },
+    { key: "q", label: "quit" },
+  ],
+};
+
+type Props = {
+  focusedPane: Pane;
+};
+
+export function Footer({ focusedPane }: Props) {
+  return (
+    <Box gap={2} paddingX={1}>
+      {COMMANDS[focusedPane].map(({ key, label }) => (
+        <Box key={key} gap={1}>
+          <Text bold color="white">
+            {key}
+          </Text>
+          <Text color="gray">{label}</Text>
+        </Box>
+      ))}
+    </Box>
+  );
+}

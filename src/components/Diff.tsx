@@ -80,12 +80,12 @@ export function Diff({ file, focused, width }: Props) {
 
   return (
     <Box flexDirection="column" width={width} ref={ref}>
-      <Box marginLeft={1} gap={1} justifyContent="space-between">
+      <Box marginX={1} gap={1} justifyContent="space-between">
         <Text bold color={focused ? "whiteBright" : "gray"} wrap="truncate-middle">
           {file ? file.displayPath : "no file selected"}
         </Text>
         <TimedHint watchValue={contextLines}>
-          <Text color="gray">Context: {contextLines} lines</Text>
+          <Text color="gray">{contextLines} lines</Text>
         </TimedHint>
       </Box>
       <ScrollView

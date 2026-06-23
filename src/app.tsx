@@ -3,10 +3,10 @@ import { useState } from "react";
 
 import { Diff } from "./components/Diff.js";
 import { Files } from "./components/Files.js";
+import { Footer } from "./components/Footer.js";
 import { Header } from "./components/Header.js";
 import { type ChangedFile } from "./lib/git/index.js";
-
-type Pane = "files" | "diff";
+import { type Pane } from "./types.js";
 
 function App() {
   const { exit } = useApp();
@@ -24,12 +24,13 @@ function App() {
   });
 
   return (
-    <Box flexDirection="column" gap={1} width={stdout.columns} height={stdout.rows}>
+    <Box flexDirection="column" width={stdout.columns} height={stdout.rows}>
       <Header />
       <Box flexDirection="row" flexGrow={1}>
         <Files width="30%" focused={focusedPane === "files"} onSelectedFile={setSelectedFile} />
         <Diff file={selectedFile} focused={focusedPane === "diff"} width="70%" />
       </Box>
+      <Footer focusedPane={focusedPane} />
     </Box>
   );
 }
