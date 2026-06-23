@@ -35,11 +35,11 @@ export function parseDiff({ raw, staged }: { raw: string; staged: boolean }): Di
   });
 }
 
-export function getFileDiffLines(file: ChangedFile): DiffLine[] {
+export function getFileDiffLines(file: ChangedFile, contextLines = 3): DiffLine[] {
   if (file.stagedStatus === "PARTIAL") {
     const parse = (staged: boolean) =>
       parseDiff({
-        raw: getDiff({ path: file.path, mode: staged ? "staged" : "unstaged" }),
+        raw: getDiff({ path: file.path, mode: staged ? "staged" : "unstaged", contextLines }),
         staged,
       });
 
@@ -57,5 +57,5 @@ export function getFileDiffLines(file: ChangedFile): DiffLine[] {
   const staged = file.stagedStatus !== "NONE";
   const mode = file.status === "UNTRACKED" ? "untracked" : staged ? "staged" : "unstaged";
 
-  return parseDiff({ raw: getDiff({ path: file.path, mode }), staged });
+  return parseDiff({ raw: getDiff({ path: file.path, mode, contextLines }), staged });
 }

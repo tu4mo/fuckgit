@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ComponentProps } from "react
 
 import { type DiffLine, getFileDiffLines } from "../lib/diff.js";
 import { type ChangedFile } from "../lib/git/index.js";
+import { TimedHint } from "./TimedHint.js";
 
 type Props = {
   file: ChangedFile | undefined;
@@ -17,9 +18,12 @@ function lineBg(line: DiffLine): string | undefined {
   return undefined;
 }
 
+const DEFAULT_CONTEXT_LINES = 3;
+
 export function Diff({ file, focused, width }: Props) {
   const [lines, setLines] = useState<DiffLine[]>([]);
   const [horizontalOffset, setHorizontalOffset] = useState(0);
+  const [contextLines, setContextLines] = useState(DEFAULT_CONTEXT_LINES);
   const scrollRef = useRef<ScrollViewRef>(null);
   const prevFileRef = useRef<string | undefined>(undefined);
   const ref = useRef(null);
@@ -32,35 +36,41 @@ export function Diff({ file, focused, width }: Props) {
       return;
     }
 
-    setLines(getFileDiffLines(file));
+    setLines(getFileDiffLines(file, contextLines));
 
     if (prevFileRef.current !== file.path) {
       scrollRef.current?.scrollToTop();
       setHorizontalOffset(0);
+      setContextLines(DEFAULT_CONTEXT_LINES);
     }
 
     prevFileRef.current = file.path;
-  }, [file]);
+  }, [file, contextLines]);
 
   const maxLineLength = useMemo(() => Math.max(0, ...lines.map((l) => l.text.length)), [lines]);
 
   useInput(
-    (_, key) => {
+    (input, key) => {
       const maxHorizontal = Math.max(0, maxLineLength - measuredWidth);
       if (key.upArrow) scrollRef.current?.scrollBy(-1);
       if (key.downArrow) scrollRef.current?.scrollBy(1);
       if (key.leftArrow) setHorizontalOffset((s) => Math.max(0, s - 1));
       if (key.rightArrow) setHorizontalOffset((s) => Math.min(maxHorizontal, s + 1));
+      if (input === "+") setContextLines((s) => s + 1);
+      if (input === "-") setContextLines((s) => Math.max(0, s - 1));
     },
     { isActive: focused },
   );
 
   return (
     <Box flexDirection="column" width={width} ref={ref}>
-      <Box marginLeft={1}>
+      <Box marginLeft={1} gap={1} justifyContent="space-between">
         <Text bold color={focused ? "whiteBright" : "gray"} wrap="truncate-middle">
           {file ? file.displayPath : "no file selected"}
         </Text>
+        <TimedHint watchValue={contextLines}>
+          <Text color="gray">Context: {contextLines} lines</Text>
+        </TimedHint>
       </Box>
       <ScrollView
         borderColor={focused ? "white" : "gray"}

@@ -2,12 +2,22 @@ import { gitAllowFailure } from "./git.js";
 
 export type DiffMode = "staged" | "unstaged" | "untracked";
 
-export function getDiff({ path, mode }: { path: string; mode: DiffMode }): string {
+export function getDiff({
+  path,
+  mode,
+  contextLines = 3,
+}: {
+  path: string;
+  mode: DiffMode;
+  contextLines?: number;
+}): string {
+  const unifiedFlag = `-U${contextLines}`;
+
   if (mode === "untracked") {
-    return gitAllowFailure("diff", "--no-index", "/dev/null", path);
+    return gitAllowFailure("diff", unifiedFlag, "--no-index", "/dev/null", path);
   }
 
   return mode === "staged"
-    ? gitAllowFailure("diff", "--cached", path)
-    : gitAllowFailure("diff", path);
+    ? gitAllowFailure("diff", unifiedFlag, "--cached", path)
+    : gitAllowFailure("diff", unifiedFlag, path);
 }
