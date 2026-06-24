@@ -168,7 +168,7 @@ export function Diff({ file, focused, width }: Props) {
               width={measuredWidth}
             />
             {view.staged.length > 0 && view.unstaged.length > 0 && (
-              <Box width="100%" backgroundColor="gray" justifyContent="center">
+              <Box backgroundColor="gray" justifyContent="center">
                 <Text color="white">unstaged</Text>
               </Box>
             )}
