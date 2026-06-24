@@ -2,7 +2,9 @@ import { Box, Text, useBoxMetrics, useInput } from "ink";
 import { ScrollView, type ScrollViewRef } from "ink-scroll-view";
 import { useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
 
-import { type DiffLine, getFileDiffLines } from "../lib/diff.js";
+import { type DiffFile, getFileDiff } from "../lib/diff.js";
+import { readFile } from "../lib/fs.js";
+import { show } from "../lib/git/index.js";
 import { type ChangedFile } from "../lib/git/index.js";
 import { TimedHint } from "./TimedHint.js";
 
@@ -12,20 +14,61 @@ type Props = {
   width: ComponentProps<typeof Box>["width"];
 };
 
-function lineBg(line: DiffLine): string | undefined {
-  if (line.kind === "add") {
-    return "#052e16";
-  }
-  if (line.kind === "remove") {
-    return "#450a0a";
-  }
-  return undefined;
+type ViewState =
+  | { mode: "diff"; staged: DiffFile[]; unstaged: DiffFile[] }
+  | { mode: "content"; lines: string[] };
+
+type DiffFilesViewProps = {
+  files: DiffFile[];
+  horizontalOffset: number;
+  width: number;
+};
+
+function DiffFilesView({ files, horizontalOffset, width }: DiffFilesViewProps) {
+  return (
+    <>
+      {files.flatMap((file, fi) =>
+        file.chunks.flatMap((chunk, ci) => {
+          const items: React.ReactNode[] = [];
+
+          if (ci > 0 || fi > 0) {
+            items.push(
+              <Box
+                key={`sep-${fi}-${ci}`}
+                width="100%"
+                backgroundColor="gray"
+                justifyContent="center"
+              >
+                <Text color="white">···</Text>
+              </Box>,
+            );
+          }
+
+          chunk.changes.forEach((change, i) => {
+            const bg =
+              change.type === "add" ? "#052e16" : change.type === "del" ? "#450a0a" : undefined;
+            const content =
+              change.content.slice(1 + horizontalOffset, 1 + horizontalOffset + width - 2) || " ";
+            items.push(
+              <Box key={`${fi}-${ci}-${i}`} width="100%" backgroundColor={bg}>
+                <Text wrap="hard" color="white">
+                  {content}
+                </Text>
+              </Box>,
+            );
+          });
+
+          return items;
+        }),
+      )}
+    </>
+  );
 }
 
 const DEFAULT_CONTEXT_LINES = 3;
 
 export function Diff({ file, focused, width }: Props) {
-  const [lines, setLines] = useState<DiffLine[]>([]);
+  const [view, setView] = useState<ViewState>({ mode: "diff", staged: [], unstaged: [] });
   const [horizontalOffset, setHorizontalOffset] = useState(0);
   const [contextLines, setContextLines] = useState(DEFAULT_CONTEXT_LINES);
   const scrollRef = useRef<ScrollViewRef>(null);
@@ -35,12 +78,26 @@ export function Diff({ file, focused, width }: Props) {
 
   useEffect(() => {
     if (!file) {
-      setLines([]);
+      setView({ mode: "diff", staged: [], unstaged: [] });
       scrollRef.current?.scrollToTop();
       return;
     }
 
-    setLines(getFileDiffLines(file, contextLines));
+    if (file.status === "DELETED" || file.status === "UNTRACKED") {
+      let text = "";
+      try {
+        text =
+          file.status === "DELETED"
+            ? show(file.stagedStatus !== "NONE" ? `HEAD:${file.path}` : `:${file.path}`)
+            : readFile(file.path);
+      } catch {
+        text = "";
+      }
+      setView({ mode: "content", lines: text ? text.split("\n") : [] });
+    } else {
+      const { staged, unstaged } = getFileDiff(file, contextLines);
+      setView({ mode: "diff", staged, unstaged });
+    }
 
     if (prevFileRef.current !== file.path) {
       scrollRef.current?.scrollToTop();
@@ -51,7 +108,16 @@ export function Diff({ file, focused, width }: Props) {
     prevFileRef.current = file.path;
   }, [file, contextLines]);
 
-  const maxLineLength = useMemo(() => Math.max(0, ...lines.map((l) => l.text.length)), [lines]);
+  const maxLineLength = useMemo(() => {
+    if (view.mode === "content") {
+      return Math.max(0, ...view.lines.map((l) => l.length));
+    }
+    const allChanges = [
+      ...view.staged.flatMap((f) => f.chunks.flatMap((c) => c.changes)),
+      ...view.unstaged.flatMap((f) => f.chunks.flatMap((c) => c.changes)),
+    ];
+    return Math.max(0, ...allChanges.map((c) => c.content.length - 1));
+  }, [view]);
 
   useInput(
     (input, key) => {
@@ -68,10 +134,10 @@ export function Diff({ file, focused, width }: Props) {
       if (key.rightArrow) {
         setHorizontalOffset((s) => Math.min(maxHorizontal, s + 1));
       }
-      if (input === "+") {
+      if (input === "+" && view.mode === "diff") {
         setContextLines((s) => s + 1);
       }
-      if (input === "-") {
+      if (input === "-" && view.mode === "diff") {
         setContextLines((s) => Math.max(0, s - 1));
       }
     },
@@ -84,9 +150,11 @@ export function Diff({ file, focused, width }: Props) {
         <Text bold color={focused ? "whiteBright" : "gray"} wrap="truncate-middle">
           {file ? file.displayPath : "no file selected"}
         </Text>
-        <TimedHint watchValue={contextLines}>
-          <Text color="gray">{contextLines} lines</Text>
-        </TimedHint>
+        {view.mode === "diff" && (
+          <TimedHint watchValue={contextLines}>
+            <Text color="gray">{contextLines} lines</Text>
+          </TimedHint>
+        )}
       </Box>
       <ScrollView
         borderColor={focused ? "white" : "gray"}
@@ -95,26 +163,33 @@ export function Diff({ file, focused, width }: Props) {
         height={measuredHeight}
         ref={scrollRef}
       >
-        {lines.map((line, i) => {
-          if (line.kind === "separator") {
-            return (
-              <Box key={i} width="100%" backgroundColor="#222" justifyContent="center">
-                <Text color="#555">{line.text}</Text>
-              </Box>
-            );
-          }
-
-          const content =
-            line.text.slice(horizontalOffset, horizontalOffset + measuredWidth - 2) || " ";
-
-          return (
-            <Box key={i} width="100%" backgroundColor={lineBg(line)}>
+        {view.mode === "content" ? (
+          view.lines.map((line, i) => (
+            <Box key={i} width="100%">
               <Text wrap="hard" color="white">
-                {content}
+                {line.slice(horizontalOffset, horizontalOffset + measuredWidth - 2) || " "}
               </Text>
             </Box>
-          );
-        })}
+          ))
+        ) : (
+          <>
+            <DiffFilesView
+              files={view.staged}
+              horizontalOffset={horizontalOffset}
+              width={measuredWidth}
+            />
+            {view.staged.length > 0 && view.unstaged.length > 0 && (
+              <Box width="100%" backgroundColor="gray" justifyContent="center">
+                <Text color="white">unstaged</Text>
+              </Box>
+            )}
+            <DiffFilesView
+              files={view.unstaged}
+              horizontalOffset={horizontalOffset}
+              width={measuredWidth}
+            />
+          </>
+        )}
       </ScrollView>
     </Box>
   );
