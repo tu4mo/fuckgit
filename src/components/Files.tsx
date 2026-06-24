@@ -14,7 +14,7 @@ type Props = {
 };
 
 const CIRCLE_COLOR: Record<StagedStatus, string> = {
-  NONE: "gray",
+  NONE: "white",
   PARTIAL: "yellow",
   FULL: "green",
 };
@@ -98,7 +98,7 @@ export function Files({ width, focused, onSelectedFile }: Props) {
                 <Box flexGrow={1} overflow="hidden">
                   <Text wrap="hard">
                     <Text color="whiteBright">{name}</Text>
-                    {dir ? <Text color="gray"> {dir}</Text> : null}
+                    {dir ? <Text color={selected ? "white" : "gray"}> {dir}</Text> : null}
                   </Text>
                 </Box>
                 <Box flexShrink={0} marginLeft={1}>
