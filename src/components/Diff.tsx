@@ -25,43 +25,34 @@ type DiffFilesViewProps = {
 };
 
 function DiffFilesView({ files, horizontalOffset, width }: DiffFilesViewProps) {
-  return (
-    <>
-      {files.flatMap((file, fi) =>
-        file.chunks.flatMap((chunk, ci) => {
-          const items: React.ReactNode[] = [];
+  return files.flatMap((file, fi) =>
+    file.chunks.flatMap((chunk, ci) => {
+      const items: React.ReactNode[] = [];
 
-          if (ci > 0 || fi > 0) {
-            items.push(
-              <Box
-                key={`sep-${fi}-${ci}`}
-                width="100%"
-                backgroundColor="gray"
-                justifyContent="center"
-              >
-                <Text color="white">···</Text>
-              </Box>,
-            );
-          }
+      if (ci > 0 || fi > 0) {
+        items.push(
+          <Box key={`sep-${fi}-${ci}`} width="100%" backgroundColor="gray" justifyContent="center">
+            <Text color="white">···</Text>
+          </Box>,
+        );
+      }
 
-          chunk.changes.forEach((change, i) => {
-            const bg =
-              change.type === "add" ? "#052e16" : change.type === "del" ? "#450a0a" : undefined;
-            const content =
-              change.content.slice(1 + horizontalOffset, 1 + horizontalOffset + width - 2) || " ";
-            items.push(
-              <Box key={`${fi}-${ci}-${i}`} width="100%" backgroundColor={bg}>
-                <Text wrap="hard" color="white">
-                  {content}
-                </Text>
-              </Box>,
-            );
-          });
+      chunk.changes.forEach((change, i) => {
+        const bg =
+          change.type === "add" ? "#052e16" : change.type === "del" ? "#450a0a" : undefined;
+        const content =
+          change.content.slice(1 + horizontalOffset, 1 + horizontalOffset + width - 2) || " ";
+        items.push(
+          <Box key={`${fi}-${ci}-${i}`} width="100%" backgroundColor={bg}>
+            <Text wrap="hard" color="white">
+              {content}
+            </Text>
+          </Box>,
+        );
+      });
 
-          return items;
-        }),
-      )}
-    </>
+      return items;
+    }),
   );
 }
 

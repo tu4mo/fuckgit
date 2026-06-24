@@ -11,15 +11,20 @@ export function getFileDiff(
   contextLines = 3,
 ): { staged: DiffFile[]; unstaged: DiffFile[] } {
   if (file.stagedStatus === "PARTIAL") {
+    const stagedDiff = getDiff({ path: file.path, staged: true, contextLines });
+    const unstagedDiff = getDiff({ path: file.path, staged: false, contextLines });
+
     return {
-      staged: parseDiff(getDiff({ path: file.path, staged: true, contextLines })),
-      unstaged: parseDiff(getDiff({ path: file.path, staged: false, contextLines })),
+      staged: parseDiff(stagedDiff),
+      unstaged: parseDiff(unstagedDiff),
     };
   }
 
   const staged = file.stagedStatus !== "NONE";
+  const stagedDiff = getDiff({ path: file.path, staged, contextLines });
+
   return {
-    staged: parseDiff(getDiff({ path: file.path, staged, contextLines })),
+    staged: parseDiff(stagedDiff),
     unstaged: [],
   };
 }
