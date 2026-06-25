@@ -1,7 +1,7 @@
 import parseDiff from "parse-diff";
 
-import type { ChangedFile } from "./git/status.js";
 import { getDiff } from "./git/diff.js";
+import type { ChangedFile } from "./git/status.js";
 
 export type DiffFile = ReturnType<typeof parseDiff>[number];
 export type DiffChange = DiffFile["chunks"][number]["changes"][number];
