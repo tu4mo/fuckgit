@@ -138,6 +138,7 @@ export function Diff({ file, focused, width }: Props) {
   return (
     <LabelBox
       flexGrow={1}
+      focused={focused}
       label={
         <Box gap={1}>
           <Text bold color={focused ? "whiteBright" : "gray"} wrap="truncate-middle">
