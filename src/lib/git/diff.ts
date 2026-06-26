@@ -11,6 +11,6 @@ export function getDiff({
 }): string {
   const unifiedFlag = `-U${contextLines}`;
   return staged
-    ? gitAllowFailure("diff", unifiedFlag, "--staged", path)
-    : gitAllowFailure("diff", unifiedFlag, path);
+    ? gitAllowFailure("diff", unifiedFlag, "--staged", "--", path)
+    : gitAllowFailure("diff", unifiedFlag, "--", path);
 }
