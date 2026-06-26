@@ -1,6 +1,7 @@
+import { extname } from "node:path";
+
 import { codeToANSI } from "@shikijs/cli";
 import { Text } from "ink";
-import { extname } from "node:path";
 import { useEffect, useMemo, useState } from "react";
 import type { BundledLanguage } from "shiki";
 import sliceAnsi from "slice-ansi";
