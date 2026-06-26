@@ -69,6 +69,8 @@ export function DiffPanel({ file, staged, focused, contextLines, language }: Pro
     { isActive: focused },
   );
 
+  const labelColor = focused ? "whiteBright" : "gray";
+
   return (
     <LabelBox
       flexBasis={0}
@@ -76,12 +78,17 @@ export function DiffPanel({ file, staged, focused, contextLines, language }: Pro
       focused={focused}
       label={
         file && (
-          <Text bold color={focused ? "whiteBright" : "gray"} wrap="truncate-middle">
-            {file.displayPath}: {staged ? "staged" : "unstaged"}
+          <Text bold color={labelColor} wrap="truncate-middle">
+            {file.displayPath}
           </Text>
         )
       }
       ref={ref}
+      subLabel={
+        <Text bold color={labelColor}>
+          {staged ? "staged" : "unstaged"}
+        </Text>
+      }
     >
       <ScrollView height={measuredHeight - 2} ref={scrollRef}>
         {chunks.flatMap((chunk, ci) => {
