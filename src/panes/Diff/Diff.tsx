@@ -1,53 +1,54 @@
-import { Box, useInput } from "ink";
-import { useEffect, useMemo, useState, type ComponentProps } from "react";
+import { Box, useInput } from 'ink'
+import { useEffect, useMemo, useState, type ComponentProps } from 'react'
 
-import { DiffPanel } from "../../components/DiffPanel.js";
-import { useNotification } from "../../hooks/useNotification.js";
-import { getPanelVisibility } from "../../lib/diff.js";
-import { type ChangedFile } from "../../lib/git/status.js";
-import { getLanguage } from "../../lib/highlight.js";
+import { DiffPanel } from '../../components/DiffPanel.js'
+import { useNotification } from '../../hooks/useNotification.js'
+import { getPanelVisibility } from '../../lib/diff.js'
+import { type ChangedFile } from '../../lib/git/status.js'
+import { getLanguage } from '../../lib/highlight.js'
 
 type Props = {
-  file: ChangedFile | undefined;
-  focusedPanel: "unstaged" | "staged" | null;
-  width: ComponentProps<typeof Box>["width"];
-};
+  file: ChangedFile | undefined
+  focusedPanel: 'unstaged' | 'staged' | null
+  width: ComponentProps<typeof Box>['width']
+}
 
-const DEFAULT_CONTEXT_LINES = 3;
+const DEFAULT_CONTEXT_LINES = 3
 
 export function Diff({ file, focusedPanel, width }: Props) {
-  const language = useMemo(() => (file ? getLanguage(file.path) : null), [file]);
-  const [contextLines, setContextLines] = useState(DEFAULT_CONTEXT_LINES);
-  const { addNotification } = useNotification();
+  const language = useMemo(() => (file ? getLanguage(file.path) : null), [file])
+  const [contextLines, setContextLines] = useState(DEFAULT_CONTEXT_LINES)
+  const { addNotification } = useNotification()
 
-  const { isContentMode, hasStagedPanel, hasUnstagedPanel } = getPanelVisibility(file);
+  const { isContentMode, hasStagedPanel, hasUnstagedPanel } =
+    getPanelVisibility(file)
 
   useEffect(() => {
-    setContextLines(DEFAULT_CONTEXT_LINES);
-  }, [file?.path]);
+    setContextLines(DEFAULT_CONTEXT_LINES)
+  }, [file?.path])
 
   useInput(
     (input) => {
       if (isContentMode) {
-        return;
+        return
       }
-      if (input === "+") {
+      if (input === '+') {
         setContextLines((s) => {
-          const next = s + 1;
-          addNotification(`${next} context lines`);
-          return next;
-        });
+          const next = s + 1
+          addNotification(`${next} context lines`)
+          return next
+        })
       }
-      if (input === "-") {
+      if (input === '-') {
         setContextLines((s) => {
-          const next = Math.max(0, s - 1);
-          addNotification(`${next} context lines`);
-          return next;
-        });
+          const next = Math.max(0, s - 1)
+          addNotification(`${next} context lines`)
+          return next
+        })
       }
     },
     { isActive: focusedPanel !== null },
-  );
+  )
 
   return (
     <Box flexDirection="column" flexGrow={1} width={width}>
@@ -55,7 +56,7 @@ export function Diff({ file, focusedPanel, width }: Props) {
         <DiffPanel
           contextLines={contextLines}
           file={file}
-          focused={focusedPanel === "unstaged"}
+          focused={focusedPanel === 'unstaged'}
           language={language}
           staged={false}
         />
@@ -64,11 +65,11 @@ export function Diff({ file, focusedPanel, width }: Props) {
         <DiffPanel
           contextLines={contextLines}
           file={file}
-          focused={focusedPanel === "staged"}
+          focused={focusedPanel === 'staged'}
           language={language}
           staged={true}
         />
       )}
     </Box>
-  );
+  )
 }

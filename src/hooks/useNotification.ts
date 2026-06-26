@@ -1,13 +1,13 @@
-import { EventEmitter } from "events";
+import { EventEmitter } from 'events'
 
-import { useCallback } from "react";
+import { useCallback } from 'react'
 
-export const notificationEmitter = new EventEmitter();
+export const notificationEmitter = new EventEmitter()
 
 export function useNotification() {
   const addNotification = useCallback((text: string) => {
-    notificationEmitter.emit("notification", text);
-  }, []);
+    notificationEmitter.emit('notification', text)
+  }, [])
 
-  return { addNotification };
+  return { addNotification }
 }

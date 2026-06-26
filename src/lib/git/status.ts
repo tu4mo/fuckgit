@@ -1,68 +1,80 @@
-import path from "node:path";
+import path from 'node:path'
 
-import { git, repoRoot } from "./git.js";
+import { git, repoRoot } from './git.js'
 
-export type GitFileStatus = "MODIFIED" | "ADDED" | "DELETED" | "RENAMED" | "UNTRACKED" | "-";
+export type GitFileStatus =
+  | 'MODIFIED'
+  | 'ADDED'
+  | 'DELETED'
+  | 'RENAMED'
+  | 'UNTRACKED'
+  | '-'
 
-export type StagedStatus = "NONE" | "PARTIAL" | "FULL";
+export type StagedStatus = 'NONE' | 'PARTIAL' | 'FULL'
 
 export type ChangedFile = {
-  path: string;
-  displayPath: string;
-  status: GitFileStatus;
-  workingTreeStatus: GitFileStatus;
-  stagedStatus: StagedStatus;
-};
+  path: string
+  displayPath: string
+  status: GitFileStatus
+  workingTreeStatus: GitFileStatus
+  stagedStatus: StagedStatus
+}
 
 const STATUS_MAP: Record<string, GitFileStatus> = {
-  "M": "MODIFIED",
-  "A": "ADDED",
-  "D": "DELETED",
-  "R": "RENAMED",
-  "?": "UNTRACKED",
-};
+  'M': 'MODIFIED',
+  'A': 'ADDED',
+  'D': 'DELETED',
+  'R': 'RENAMED',
+  '?': 'UNTRACKED',
+}
 
 export function getStatus(): ChangedFile[] {
   try {
-    const output = git("status", "--porcelain", "--untracked-files=all");
+    const output = git('status', '--porcelain', '--untracked-files=all')
 
     if (!output) {
-      return [];
+      return []
     }
 
-    return output.split("\n").map((line) => {
-      const [indexStatusChar, workingTreeStatusChar] = line;
+    return output.split('\n').map((line) => {
+      const [indexStatusChar, workingTreeStatusChar] = line
 
-      const isIndexChanged = indexStatusChar !== " " && indexStatusChar !== "?";
-      const isWorkingTreeChanged = workingTreeStatusChar !== " " && workingTreeStatusChar !== "?";
+      const isIndexChanged = indexStatusChar !== ' ' && indexStatusChar !== '?'
+      const isWorkingTreeChanged =
+        workingTreeStatusChar !== ' ' && workingTreeStatusChar !== '?'
 
       const stagedStatus: StagedStatus = !isIndexChanged
-        ? "NONE"
+        ? 'NONE'
         : isWorkingTreeChanged
-          ? "PARTIAL"
-          : "FULL";
+          ? 'PARTIAL'
+          : 'FULL'
 
       const statusCode =
-        workingTreeStatusChar === "?"
-          ? "?"
+        workingTreeStatusChar === '?'
+          ? '?'
           : isIndexChanged
             ? indexStatusChar
-            : workingTreeStatusChar;
+            : workingTreeStatusChar
 
-      const filePath = line.slice(3);
+      const filePath = line.slice(3)
 
       const workingTreeStatus: GitFileStatus =
-        workingTreeStatusChar === "?" ? "UNTRACKED" : STATUS_MAP[workingTreeStatusChar ?? ""] ?? "-";
+        workingTreeStatusChar === '?'
+          ? 'UNTRACKED'
+          : (STATUS_MAP[workingTreeStatusChar ?? ''] ?? '-')
 
       return {
         path: filePath,
-        displayPath: path.relative(process.cwd(), path.join(repoRoot, filePath)),
-        status: STATUS_MAP[statusCode ?? ""] ?? "-",
+        displayPath: path.relative(
+          process.cwd(),
+          path.join(repoRoot, filePath),
+        ),
+        status: STATUS_MAP[statusCode ?? ''] ?? '-',
         workingTreeStatus,
         stagedStatus,
-      };
-    });
+      }
+    })
   } catch {
-    return [];
+    return []
   }
 }
