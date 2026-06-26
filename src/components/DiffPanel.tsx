@@ -86,9 +86,11 @@ export function DiffPanel({
       }
       ref={ref}
       subLabel={
-        <Text bold color={labelColor}>
-          {staged ? 'staged' : 'unstaged'}
-        </Text>
+        file && (
+          <Text bold color={labelColor}>
+            {staged ? 'staged' : 'unstaged'}
+          </Text>
+        )
       }
     >
       <ScrollView height={measuredHeight - 2} ref={scrollRef}>
