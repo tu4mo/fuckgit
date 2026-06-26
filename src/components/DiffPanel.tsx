@@ -1,6 +1,6 @@
 import { Text, useBoxMetrics, useInput } from 'ink'
 import { ScrollView, type ScrollViewRef } from 'ink-scroll-view'
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
 import type { BundledLanguage } from 'shiki'
 
 import { useHighlightedLines } from '../hooks/useHighlightedLines.js'
@@ -44,11 +44,6 @@ export function DiffPanel({
     [chunks],
   )
   const highlightedLines = useHighlightedLines(allContents, language)
-
-  useEffect(() => {
-    scrollRef.current?.scrollToTop()
-    setHorizontalOffset(0)
-  }, [file?.path])
 
   useInput(
     (input, key) => {

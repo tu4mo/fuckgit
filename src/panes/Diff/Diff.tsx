@@ -54,6 +54,7 @@ export function Diff({ file, focusedPanel, width }: Props) {
     <Box flexDirection="column" flexGrow={1} width={width}>
       {hasUnstagedPanel && (
         <DiffPanel
+          key={file?.path}
           contextLines={contextLines}
           file={file}
           focused={focusedPanel === 'unstaged'}
@@ -63,6 +64,7 @@ export function Diff({ file, focusedPanel, width }: Props) {
       )}
       {hasStagedPanel && (
         <DiffPanel
+          key={file?.path}
           contextLines={contextLines}
           file={file}
           focused={focusedPanel === 'staged'}
