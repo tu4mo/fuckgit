@@ -103,21 +103,20 @@ export function Files({ width, focused, onSelectedFile }: Props) {
 
             return (
               <Box
-                key={file.path}
                 backgroundColor={selected ? "gray" : undefined}
-                paddingX={1}
+                gap={1}
                 height={1}
+                key={file.path}
+                paddingX={1}
               >
-                <Text color={CIRCLE_COLOR[file.stagedStatus]}>
-                  {file.stagedStatus === "NONE" ? "○" : "●"}{" "}
-                </Text>
+                <Text color={CIRCLE_COLOR[file.stagedStatus]}>●</Text>
                 <Box flexGrow={1} overflow="hidden">
                   <Text wrap="hard">
                     <Text color="whiteBright">{name}</Text>
                     {dir ? <Text color={selected ? "white" : "gray"}> {dir}</Text> : null}
                   </Text>
                 </Box>
-                <Box flexShrink={0} marginLeft={1}>
+                <Box flexShrink={0}>
                   <Text color={STATUS[displayStatus].color}>{STATUS[displayStatus].symbol}</Text>
                 </Box>
               </Box>
