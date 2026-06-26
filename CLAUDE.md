@@ -8,3 +8,4 @@ f\*ckgit is a fullscreen TUI (terminal user interface) Git client.
 
 - `src/lib/git/` is only for git operations.
 - Always install new dependencies as `devDependencies` (`npm install --save-dev`) since the app is bundled.
+- When changing keyboard shortcuts, update `src/components/Footer.tsx` to reflect changes.
