@@ -1,4 +1,4 @@
-import { Text, useBoxMetrics, useFocus, useInput } from 'ink'
+import { Text, useBoxMetrics, useFocus, useFocusManager, useInput } from 'ink'
 import { ScrollView, type ScrollViewRef } from 'ink-scroll-view'
 import { useMemo, useRef, useState, type ReactNode } from 'react'
 import type { BundledLanguage } from 'shiki'
@@ -16,12 +16,15 @@ type Props = {
   staged: boolean
   contextLines: number
   language: BundledLanguage | null
+  visible: boolean
 }
 
-export function DiffPanel({ file, staged, contextLines, language }: Props) {
+export function DiffPanel({ file, staged, contextLines, language, visible }: Props) {
   const { isFocused } = useFocus({
     id: staged ? 'diff-staged' : 'diff-unstaged',
+    isActive: visible,
   })
+  const { focus } = useFocusManager()
   const { stage, unstage } = useRepository()
   const [horizontalOffset, setHorizontalOffset] = useState(0)
   const scrollRef = useRef<ScrollViewRef>(null)
@@ -58,13 +61,19 @@ export function DiffPanel({ file, staged, contextLines, language }: Props) {
       if (input === ' ' && file) {
         if (staged) {
           unstage(file.path)
+          focus('diff-unstaged')
         } else {
           stage(file.path)
+          focus('diff-staged')
         }
       }
     },
     { isActive: isFocused },
   )
+
+  if (!visible) {
+    return null
+  }
 
   const labelColor = isFocused ? 'whiteBright' : 'gray'
 

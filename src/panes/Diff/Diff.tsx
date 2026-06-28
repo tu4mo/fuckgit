@@ -52,24 +52,22 @@ export function Diff({ file, width }: Props) {
 
   return (
     <Box flexDirection="column" flexGrow={1} width={width}>
-      {hasUnstagedPanel && (
-        <DiffPanel
-          key={`${file?.path}-unstaged`}
-          contextLines={contextLines}
-          file={file}
-          language={language}
-          staged={false}
-        />
-      )}
-      {hasStagedPanel && (
-        <DiffPanel
-          key={`${file?.path}-staged`}
-          contextLines={contextLines}
-          file={file}
-          language={language}
-          staged={true}
-        />
-      )}
+      <DiffPanel
+        key={`${file?.path}-unstaged`}
+        contextLines={contextLines}
+        file={file}
+        language={language}
+        staged={false}
+        visible={hasUnstagedPanel}
+      />
+      <DiffPanel
+        key={`${file?.path}-staged`}
+        contextLines={contextLines}
+        file={file}
+        language={language}
+        staged={true}
+        visible={hasStagedPanel}
+      />
     </Box>
   )
 }
