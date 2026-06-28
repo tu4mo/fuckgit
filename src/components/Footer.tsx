@@ -8,24 +8,15 @@ type Command = {
   label: string
 }
 
+const STAGE_UNSTAGE_KEY = { key: 'space', label: 'stage/unstage' }
+const SWITCH_PANE_KEY = { key: 'tab', label: 'switch pane' }
+const CONTEXT_KEY = { key: '+/-', label: 'context' }
+const QUIT_KEY = { key: 'q', label: 'quit' }
+
 const COMMANDS: Record<Pane, Command[]> = {
-  'files': [
-    { key: 'space', label: 'stage/unstage' },
-    { key: 'tab', label: 'switch pane' },
-    { key: 'q', label: 'quit' },
-  ],
-  'diff-unstaged': [
-    { key: 'space', label: 'stage' },
-    { key: '+/-', label: 'context' },
-    { key: 'tab', label: 'switch pane' },
-    { key: 'q', label: 'quit' },
-  ],
-  'diff-staged': [
-    { key: 'space', label: 'unstage' },
-    { key: '+/-', label: 'context' },
-    { key: 'tab', label: 'switch pane' },
-    { key: 'q', label: 'quit' },
-  ],
+  'files': [STAGE_UNSTAGE_KEY, SWITCH_PANE_KEY, QUIT_KEY],
+  'diff-unstaged': [STAGE_UNSTAGE_KEY, SWITCH_PANE_KEY, CONTEXT_KEY, QUIT_KEY],
+  'diff-staged': [STAGE_UNSTAGE_KEY, SWITCH_PANE_KEY, CONTEXT_KEY, QUIT_KEY],
 }
 
 export function Footer() {
